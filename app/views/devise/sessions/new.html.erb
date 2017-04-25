@@ -1,0 +1,72 @@
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Typing Typhoon</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+
+<body>
+<!-- Navigation bar to be shown on every page -->
+    <nav class="navbar navbar-default navbar-fixed-top nav-bar-dec">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <a class="btn navbar-btn nav-bar-text pull-left">
+                        <img src=<%= image_url('profile.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    </a>
+                    <a class="btn navbar-btn nav-bar-text pull-left">
+                        <img src=<%= image_url('test.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    </a>
+                    <a class="btn navbar-btn nav-bar-text pull-left">
+                        <img src=<%= image_url('leaderboard.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    </a>
+                    <a href="/" class="btn navbar-btn nav-bar-text brand">
+                        <img src=<%= image_url('logo.png') %> alt="Near Me [active]" class="icon-default icon-relative brand-icon">
+                        <img src=<%= image_url('cursor.gif') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon cursor">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="form form-group">
+        <ul class="tab-group">
+            <li class="tab active"><a href="/">Log In</a></li>
+            <li class="tab"><a href="/users/sign_up">Sign Up</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="login">
+                <h1>Login</h1>
+                <form method="post">
+
+                    <div class="field-wrap">
+                        <%= f.label :email %> <span class="req">*</span>
+                        <%= f.email_field :email, autofocus: true %>
+                    </div>
+
+                    <div class="field-wrap">
+                        <%= f.label :password %> <span class="req">*</span>
+                        <%= f.password_field :password, autocomplete: "off" %>
+  
+                    </div>
+
+                    <button type="submit" class="button button-block"/> <%= f.submit "Log in", :class => 'submit-buttons' %> </button>
+                </form>
+            </div>
+            <div id="signup">
+                <form action="/" method="post">
+                </form>
+            </div>
+        </div>
+        <!-- tab-content -->
+    </div>
+</body>
+
+</html>
+<% end %>

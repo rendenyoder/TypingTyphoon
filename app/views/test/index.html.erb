@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Typing Typhoon</title>
+</head>
+
+<body>
+    <!-- Navigation bar to be shown on every page -->
+    <nav class="navbar navbar-default navbar-fixed-top nav-bar-dec">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                	<!-- Profile -->
+                    <a href="/user/profile" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/user/profile" || request.env['PATH_INFO'] == "/"%>
+                        <img src=<%= image_url('profile_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('profile.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Test -->
+                    <a href="/test" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/test/index" || request.env['PATH_INFO'] == "/test"%>
+                        <img src=<%= image_url('test_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('test.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Leaderboard  -->
+                    <a href="/leaderboard/user_results" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/leaderboard/user_results" || request.env['PATH_INFO'] == "/leaderboard/top_results"%>
+                        <img src=<%= image_url('leaderboard_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('leaderboard.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Logo -->
+                    <a href = "/" class="btn navbar-btn nav-bar-text brand">
+                        <img src=<%= image_url('logo.png') %> alt="Near Me [active]" class="icon-default icon-relative brand-icon">
+                        <img src=<%= image_url('cursor.gif') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon cursor">
+                    </a>
+                    <!--  -->
+                    <% if user_signed_in? %>
+                    <a <%= link_to("Logout", destroy_user_session_path, :method => :delete, :class => 'btn navbar-btn nav-bar-text float-right logout-button')%></a>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid text-center" style="padding-bottom: 50px;">
+        <div clas="row text-center">
+            <div class="col text-center">
+                <!--  -->
+                <h1 style = "color: black;">Hi <%= current_user.email.split("@").first %>!</h1>
+                <!--  -->
+                <div class="text-center">
+                    <!--  -->
+                    <div class="container">
+                        <ul class="list-group center text-center ">
+                            <li class="list-group-item">
+                                <div class="container-fluid">
+
+                                    <div class="center-block">
+                                        <div id="test-warning" class="alert alert-warning" style="display:none;font-weight: bold;">
+                                            <strong id="main-warning">The test will begin shortly!</strong> 
+                                        </div>
+                                    </div>
+                                    <div class="center-block">
+                                        <h1 id="to-type" style="color: black; max-width: 650px;" class="unselectable"> Click in the text area in order to start your test! </h1>
+                                    </div>
+
+                                    <div class="center-block" style="padding-bottom: 30px; padding-top: 30px;">
+                                        <input id="typing-area" class="test-input" placeholder="Click here to start!" type=text name="typed" size=45 autocomplete="off" onfocus="clearField(this); startTimer();" onblur="fillField(this);" onsubmit="stopIt();" onfocusout="stopIt();" style="border-radius: 5px; font-size: 22px;">
+                                    </div>
+
+                                    <div class="center-block" style="padding-top: 30px; padding-bottom: 30px; display: none;">
+                                        <input id="start" type=button value="Start"  name="start"  onClick="beginIt()" class="btn btn-success test-button">
+                                        <input id="stop" type=button value="Finished"  name="stop"  onClick="stopIt()" class="btn btn-warning test-button">
+                                    </div>
+
+                                    <div id="after-test" class="center-block alert alert-warning" style="display: none; padding-bottom: 30px; max-width: 650px;">
+                                        <h1 id="typing-speed" style="color: black;"> </h1>
+                                        <div style="padding-bottom: 10px;">
+                                            
+                                        </div>
+                                            <%= form_for @user_score do |f| %> 
+                                            <a onClick="retry()">
+                                                <input type=button value="Retry" class="btn btn-success test-button">
+                                            </a>
+                                                <%= f.text_field :user_id, id: 'userid', class: 'new-score-field' %>
+                                                <%= f.text_field :wpm, id: 'wpm', class: 'new-score-field'%>
+                                                <%= f.text_field :accuracy, id: 'accuracy', class: 'new-score-field'%>
+                                                <%= f.text_field :points, id: 'points', class: 'new-score-field'%>
+                                                <%= f.submit "Save Score?", id: 'addScore', class: "btn btn-danger test-button" %> 
+                                            <% end %>   
+                                    </div>
+
+                                    <!-- Alert that there is a movie selection option -->
+                                    <div id="category-groups">
+                                        <div class="center-block">
+                                            <h1 style="color: black; font-size: 22px;"> Personalize your typing test! Select a media category and an option! </h1>
+                                        </div>
+                                        <!-- Give movie options here -->
+                                        <div class="center-block alert alert-success" style="padding-top: 30px; padding-bottom: 30px; background-color: #49C9C4; margin-top: 20px;">
+                                            
+                                        <a data-toggle="collapse" href="#movies" class="category-icon" id="movies-button" onclick="closeAllAndOpenSelected('movies');">
+                                                    <img src=<%= image_url('movies.png') %> class="category-option" style="width: 50px;"></a>
+
+                                        <a data-toggle="collapse" href="#music" style="padding-left: 30px;" class="category-icon" id="music-button" onclick="closeAllAndOpenSelected('music');">
+                                                    <img src=<%= image_url('music.png') %> class="category-option" style="width: 50px;"></a>
+
+                                        <a data-toggle="collapse" href="#books" style="padding-left: 30px;" class="category-icon" id="books-button" onclick="closeAllAndOpenSelected('books');">
+                                                    <img src=<%= image_url('books.png') %> class="category-option" style="width: 50px;"></a>
+
+
+                                            <div id="movies" class="panel-collapse collapse">
+                                                <div style="color: white; font-size: 10px;">______________________________________________</div>
+                                                <h1> Movies </h1>
+                                                <a onclick="napoleondynamite('napoleondynamite_id')" class="btn navbar-btn nav-bar-text pull-left" id="napoleondynamite_id" style="">
+                                                    <img src=<%= image_url('napoleondynamite.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="forrestgump('forrestgump_id')" class="btn navbar-btn nav-bar-text pull-left" id="forrestgump_id">
+                                                    <img src=<%= image_url('forrestgump.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="anchorman('anchorman_id')" class="btn navbar-btn nav-bar-text pull-left" id="anchorman_id">
+                                                    <img src=<%= image_url('anchorman.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="simpsons('simpsons_id')" class="btn navbar-btn nav-bar-text pull-left" id="simpsons_id">
+                                                    <img src=<%= image_url('simpsons.png') %> class="category-option">
+                                                </a>
+                                            </div>
+
+                                            <div id="music" class="panel-collapse collapse">
+                                                <div style="color: white; font-size: 10px;">______________________________________________</div>
+                                                <h1> Music </h1>
+                                                <a onclick="macdemarco('macdemarco_id')" class="btn navbar-btn nav-bar-text pull-left" id="macdemarco_id" style="">
+                                                    <img src=<%= image_url('macdemarco.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="thebeatles('thebeatles_id')" class="btn navbar-btn nav-bar-text pull-left" id="thebeatles_id">
+                                                    <img src=<%= image_url('thebeatles.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="thepolice('thepolice_id')" class="btn navbar-btn nav-bar-text pull-left" id="thepolice_id">
+                                                    <img src=<%= image_url('thepolice.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="chance('chance_id')" class="btn navbar-btn nav-bar-text pull-left" id="chance_id">
+                                                    <img src=<%= image_url('chance.png') %> class="category-option">
+                                                </a>
+                                            </div>
+
+                                            <div id="books" class="panel-collapse collapse">
+                                                <div style="color: white; font-size: 10px;">______________________________________________</div>
+                                                <h1> Books </h1>
+                                                <a onclick="lordoftherings('lordoftherings_id')" class="btn navbar-btn nav-bar-text pull-left" id="lordoftherings_id" style="">
+                                                    <img src=<%= image_url('lordoftherings.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="ofmiceandmen('ofmiceandmen_id')" class="btn navbar-btn nav-bar-text pull-left" id="ofmiceandmen_id">
+                                                    <img src=<%= image_url('ofmiceandmen.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="prideprejudice('prideprejudice_id')" class="btn navbar-btn nav-bar-text pull-left" id="prideprejudice_id">
+                                                    <img src=<%= image_url('prideprejudice.png') %> class="category-option">
+                                                </a>
+                                                <a onclick="hungergames('hungergames_id')" class="btn navbar-btn nav-bar-text pull-left" id="hungergames_id">
+                                                    <img src=<%= image_url('hungergames.png') %> class="category-option">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+    <SCRIPT LANGUAGE="JavaScript">
+        // document.getElementById("after-test").style.visibility = 'hidden';
+        document.getElementById("stop").disabled = true;
+
+        var isStarted = false;
+        var timerStarted = false;
+        var selectedSentence = "";
+
+        msg = new Array("Practicing with your typing can greatly help your overall computer skills.",
+                        "A new computer is sold in the US every hour!",
+                        "When do birds migrate from North to South?",
+                        "Perplexing phrases, like this one, are tougher to type.")
+        word = 10
+
+        //Movies
+        function napoleondynamite(element_id) {
+            msg = new Array("You know, like nunchuck skills, bo hunting skills, computer hacking skills. Girls only like guys who have great skills.",
+                            "How much do you want to bet I can throw this football over them mountains?",
+                            "Napoleon, don't be jealous that I've been chatting online with babes all day. Besides, we both know that I'm training to be a cage fighter.",
+                            "It's a liger. It's probably my favorite animal. It defends itself with its growing skills in the field of magic.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function forrestgump(element_id) {
+            msg = new Array("Life is like a box of chocolates. You never know what you're gonna get.",
+                            "My given name is Benjamin Buford Blue, but people call me Bubba. Just like one of them ol' redneck boys.",
+                            "And cause I was a gazillionaire, and I liked doin it so much, I cut that grass for free.",
+                            "Coons? Well raccoons tried to get in our back porch, Momma just chase 'em off with a broom!");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function anchorman(element_id) {
+            msg = new Array("He had a voice that could make a wolverine purr and suits so fine they made Sinatra look like a hobo.",
+                            "Oh, I can barely lift my right arm ’cause I did so many. I don’t know if you heard me counting. I did over a thousand.",
+                            "I’m very important. I have many leather-bound books and my apartment smells of rich mahogany.",
+                            "I’ll have a Manhattan. And kick the vermouth to the side with a pair of steel-toed boots.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function simpsons(element_id) {
+            msg = new Array("I’d rather let a thousand guilty men go free than chase after them.",
+                            "It’s not easy to juggle a pregnant wife and a troubled child, but somehow I managed to fit in eight hours of TV a day.",
+                            "Remember the time he ate my goldfish, and you lied to me and said I never had any goldfish.",
+                            "Coons? Well raccoons tried to get in our back porch, Momma just chase 'em off with a broom!");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+
+        //Music
+        function macdemarco(element_id) {
+            msg = new Array("You’re no better off, living your life and dreaming at night. This much is true, but it’s still up to you to take my advice.",
+                            "Someday I'll find her and I'm still reminded. Maybe she's best in dreams, she's still the best I've seen.",
+                            "I'd say, see you next time, if I thought there were a next time. Easy conversation, ain't exactly where we're at.",
+                            "Viceroy, early in the morning. Just trying to let the sun in and open up my eyes.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function thebeatles(element_id) {
+            msg = new Array("And when the brokenhearted people, living in the world agree, there will be an answer, let it be.",
+                            "Words are flowing out, like endless rain into a paper cup, they slither while they pass, they slip away across the universe.",
+                            "Blackbird singing in the dead of night. Take these broken wings and learn to fly.",
+                            "There’s nothing you can do that can’t be done, nothing you can sing that can’t be sung.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function thepolice(element_id) {
+            msg = new Array("I loved you since I knew you, I wouldn't talk down to you, I have to tell you just how I feel.",
+                            "Oh can't you see you belong to me? How my poor heart aches with every step you take.",
+                            "A year has passed since I wrote my note, but I should have known this right from the start, only hope can keep me together.",
+                            "I thought about it and my dream was broken, I clutch at images like dying breath.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function chance(element_id) {
+            msg = new Array("I guess that's why they call it where I stay. Clean up the streets, so my daughter can have somewhere to play.",
+                            "I don't make songs for free I make 'em for freedom. Don't believe in kings, believe in the kingdom.",
+                            "Momma had salon doing perms out the armchair. Yeah we're working late, he treat the crib like it's a timeshare.",
+                            "The people's champ must be everything the people can't be. I'm getting artsy-farsy, house full of some Hebru Brantleys.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+
+        //Books
+        function lordoftherings(element_id) {
+            msg = new Array("So do all who live to see such times. But that is not for them to decide. All we have to decide is what to do with the time that is given to us.",
+                            "Smoke rises from the Mountain of Doom, the hour grows late, and Gandalf the Grey rides to Isengard seeking my counsel.",
+                            "I am the Servant of the Secret Fire! Wielder of the Flame of Anor! The dark fire shall not avail you, flame of Undun! Go back to the Shadow!",
+                            "Do not be so quick to deal out death and judgement. Even the very wise do not see all ends.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function ofmiceandmen(element_id) {
+            msg = new Array("His ear heard more than what was said to him, and his slow speech had overtones not of thought, but of understanding beyond thought.",
+                            "I got you to look after me, and you got me to look after you, and that's why.",
+                            "Well, I never seen one guy take so much trouble for another guy. I just like to know what your interest is.",
+                            "I ought to of shot that dog myself, George. I shouldn't ought to of let no stranger shoot my dog.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function prideprejudice(element_id) {
+            msg = new Array("A lady's imagination is very rapid; it jumps from admiration to love, from love to matrimony in a moment.",
+                            "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+                            "For what do we live, but to make sport for our neighbors, and laugh at them in our turn?",
+                            "You must learn some of my philosophy. Think only of the past as its remembrance gives you pleasure.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+        function hungergames(element_id) {
+            msg = new Array("It crosses my mind that Cinna's calm and normal demeanor masks a complete madman.",
+                            "Kind people have a way of working their way inside me and rooting there.",
+                            "They're already taking my future! They can't have the things that mattered to me in the past!",
+                            "I realize, for the first time, how very lonely I've been in the arena. How comforting the presence of another human being can be.");
+            console.log(element_id);
+            highlightSelected(element_id)
+        }
+
+        //Function to reset the highlighting effect of the movie selections
+        function highlightSelected(element_id){
+            document.getElementById("napoleondynamite_id").style.backgroundColor = '';
+            document.getElementById("anchorman_id").style.backgroundColor = '';
+            document.getElementById("forrestgump_id").style.backgroundColor = '';
+            document.getElementById("simpsons_id").style.backgroundColor = '';
+            document.getElementById("macdemarco_id").style.backgroundColor = '';
+            document.getElementById("thebeatles_id").style.backgroundColor = '';
+            document.getElementById("thepolice_id").style.backgroundColor = '';
+            document.getElementById("chance_id").style.backgroundColor = '';
+            document.getElementById("lordoftherings_id").style.backgroundColor = '';
+            document.getElementById("ofmiceandmen_id").style.backgroundColor = '';
+            document.getElementById("prideprejudice_id").style.backgroundColor = '';
+            document.getElementById("hungergames_id").style.backgroundColor = '';
+            document.getElementById(element_id).style.backgroundColor = '#71DDD5';
+        }
+        //Function to clear the input
+        function clearField(input) {
+            input.value = "";
+        }
+
+
+        function closeAllAndOpenSelected(idOfSelected){
+            var movieButton = document.getElementById('movies-button');
+            var musicButton = document.getElementById('music-button');
+            var booksButton = document.getElementById('books-button');
+
+            var movie = document.getElementById('movies');
+            var music = document.getElementById('music');
+            var books = document.getElementById('books');
+
+
+
+            if(window.getComputedStyle(movies, null).getPropertyValue('display') != "none"){
+                console.log("visible");
+                movieButton.click();
+            }
+            if(window.getComputedStyle(music, null).getPropertyValue('display') != "none"){
+                console.log("visible");
+                musicButton.click();
+            } 
+            if(window.getComputedStyle(books, null).getPropertyValue('display') != "none"){
+                console.log("visible");
+                booksButton.click();
+            } 
+
+
+
+            if(idOfSelected == "movies"){
+                movieButton.click();
+            } else if(idOfSelected == "music"){
+                musicButton.click();
+            } else if(idOfSelected == "books"){
+                booksButton.click();
+            }
+
+            // var borderWidth = window.getComputedStyle(music, null).getPropertyValue('display');
+            // console.log(borderWidth);
+        }
+
+        /*
+            Timer function
+        */
+        function startTimer(){
+            closeAllAndOpenSelected("null");
+
+            span = document.getElementById("test-warning");
+            span.style.display = "";
+
+            var counter = 4;
+
+            if(timerStarted == false){
+            timerStarted = true;
+            setInterval(function() {
+                    counter--;
+                    if (counter >= 0) {
+                        span.innerHTML = "Test will begin in: " + counter;
+                    }
+                    if (counter === 0) {
+                        span.innerHTML = "Test has started!";
+                        clearField(document.getElementById("typing-area"));
+                        beginIt();
+                    }
+            }, 1000);
+        }
+        }
+
+        /*
+            Function to start the typing test
+        */
+        function beginIt() {
+            if(isStarted == false){
+
+                retry();
+                isStarted = true;
+                //Randomly pick one of the lines from the selected word bank
+                randNum = Math.floor((Math.random() * 10)) % msg.length;
+                msgType = msg[randNum];
+                day = new Date();
+                startType = day.getTime();
+                word = msgType.split(" ").length;
+                //Set global varaible as msgType
+                selectedSentence = msgType;
+                console.log(word);
+                //Display selected thing to type
+                document.getElementById("to-type").innerHTML = msgType;
+            }
+        }
+
+
+        /*
+            Function to detect if the enter key is pressed
+        */
+        document.getElementById("typing-area").onkeypress = function(e) {
+            var event = e || window.event;
+            var charCode = event.which || event.keyCode;
+            //If the key is the enter button
+            if ( charCode == '13' ) {
+              stopIt();
+            }
+        }
+
+
+        /*
+            Function reset the typing area
+        */
+        function retry(){
+            document.getElementById("typing-speed").innerHTML="";
+            document.getElementById("after-test").style.display = "none";
+            document.getElementById("to-type").innerHTML = "Press start or click in the text box in order to start your test!";
+            clearField(document.getElementById("typing-area"));
+        }
+
+
+        /*
+            Function to stop the typing test
+        */
+        function stopIt() {
+            if(isStarted){
+                isStarted = false;
+                timerStarted = false;
+                //Remove the warning message
+                document.getElementById("test-warning").style.display = "none";
+                //Display there results element
+                document.getElementById("after-test").style.display = "";
+                //Display the actual amount of words they got per minute
+                var errors = 0;
+
+                var userSentence = document.getElementById("typing-area").value;
+                var userArray = userSentence.split(" ");
+                var selectedArray = selectedSentence.split(" ");
+
+                for(var i = 0; i < selectedArray.length; i++){
+                    try{
+                        errors += levDist(selectedArray[i], userArray[i]);
+                    } catch (err){
+                        errors += selectedArray[i].length;
+                    }
+                }
+                console.log(errors);
+
+                if(errors < 10){
+                    //Calculate the amount of words they typed per minute
+                    dayTwo = new Date();
+                    endType = dayTwo.getTime();
+                    totalTime = ((endType - startType) / 1000);
+                    spd = Math.round((word/totalTime) * 60);
+                    var accr = (userSentence.length - errors) / userSentence.length;
+                    accr = Math.round(accr * 100);
+                    points = Math.round(spd * (accr/100));
+                    document.getElementById("typing-speed").innerHTML="\nYou typed at a speed of " + spd + " words per minute with " + accr + "% accuracy! You earned " + points + " points!";
+                    //Set variable for form submission
+                    document.getElementById("userid").value = <%= current_user.id %>;
+                    document.getElementById("wpm").value = spd;
+                    document.getElementById("accuracy").value = accr;
+                    document.getElementById("points").value = points;
+                    document.getElementById("addScore").disabled = false;
+                } else {
+                    document.getElementById("typing-speed").innerHTML="Too many errors were made to get an accurate reading, try again!";
+                    document.getElementById("addScore").disabled = true;
+                }
+            }
+        }
+
+
+        var levDist = function(s, t) {
+            var d = []; 
+            var n = s.length;
+            var m = t.length;
+
+            if (n == 0) return m;
+            if (m == 0) return n;
+
+            for (var i = n; i >= 0; i--) d[i] = [];
+
+            for (var i = n; i >= 0; i--) d[i][0] = i;
+            for (var j = m; j >= 0; j--) d[0][j] = j;
+
+            for (var i = 1; i <= n; i++) {
+                var s_i = s.charAt(i - 1);
+
+                for (var j = 1; j <= m; j++) {
+                    if (i == j && d[i][j] > 4) return n;
+
+                    var t_j = t.charAt(j - 1);
+                    var cost = (s_i == t_j) ? 0 : 1;
+
+                    var mi = d[i - 1][j] + 1;
+                    var b = d[i][j - 1] + 1;
+                    var c = d[i - 1][j - 1] + cost;
+
+                    if (b < mi) mi = b;
+                    if (c < mi) mi = c;
+
+                    d[i][j] = mi;
+
+                    if (i > 1 && j > 1 && s_i == t.charAt(j - 2) && s.charAt(i - 2) == t_j) {
+                        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+                    }
+                }
+            }
+            return d[n][m];
+        }
+
+    </SCRIPT>
+
+</html>

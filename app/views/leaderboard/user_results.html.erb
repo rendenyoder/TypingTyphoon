@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Typing Typhoon</title>
+</head>
+
+<body>
+    <!-- Navigation bar to be shown on every page -->
+    <nav class="navbar navbar-default navbar-fixed-top nav-bar-dec">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                	<!-- Profile -->
+                    <a href="/user/profile" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/user/profile" || request.env['PATH_INFO'] == "/"%>
+                        <img src=<%= image_url('profile_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('profile.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Test -->
+                    <a href="/test" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/test/index" || request.env['PATH_INFO'] == "/test"%>
+                        <img src=<%= image_url('test_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('test.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Leaderboard  -->
+                    <a href="/leaderboard/user_results" class="btn navbar-btn nav-bar-text pull-left">
+                    <% if request.env['PATH_INFO'] == "/leaderboard/user_results" || request.env['PATH_INFO'] == "/leaderboard/top_results"%>
+                        <img src=<%= image_url('leaderboard_active.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% else %>
+                    	<img src=<%= image_url('leaderboard.png') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon">
+                    <% end %>
+                    </a>
+                    <!-- Logo -->
+                    <a href = "/" class="btn navbar-btn nav-bar-text brand">
+                        <img src=<%= image_url('logo.png') %> alt="Near Me [active]" class="icon-default icon-relative brand-icon">
+                        <img src=<%= image_url('cursor.gif') %> alt="Near Me [active]" class="icon-default icon-relative nav-icon cursor">
+                    </a>
+                    <!--  -->
+                    <% if user_signed_in? %>
+                    <a <%= link_to("Logout", destroy_user_session_path, :method => :delete, :class => 'btn navbar-btn nav-bar-text float-right logout-button')%></a>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <% if @user_scores.length != 0 %>
+        <div class="container-fluid text-center" style="padding-bottom: 50px;">
+            <div clas="row text-center">
+                <div class="col text-center">
+                    <!--  -->
+                    <div class="form form-group" style="height: 100px; margin-top: 30px;">
+                        <ul class="tab-group" style="margin-top: -20px;">
+                            <li class="tab active"><a href="/leaderboard/user_results">My Scores</a></li>
+                            <li class="tab"><a href="/leaderboard/top_results">Global Scores</a></li>
+                        </ul>
+                    </div>
+                    <!--  -->
+                    <h1 style = "color: black;">Your Top Scores!</h1>
+                    <!--  -->
+                    <div class="text-center">
+                        <!--  -->
+                        <div class="container">
+                            <ul class="list-group center text-center ">
+                            <% @user_scores.reverse[0..4].each do |score| %>
+                                <li class="list-group-item">
+                                <div class="container-fluid center-block">
+                                    <div class="leaderboard-place"> #<%= @counter = @counter + 1 %> </div>
+                                    <h1 class="alert alert-success" style="width: 300px; font-size: 16px;"> Top Score </h1>
+                                </div>
+                                    <div class="container-fluid">
+                                        <div class="btn btn-info" style="width:150px;"> WPM: <%= score.wpm %> </div>
+                                        <div class="btn btn-info" style="width:150px;"> Accuracy: <%= score.accuracy %> </div>
+                                        <div class="btn btn-success" style="width:150px;"> Points: <%= score.points %> </div>
+                                    </div>
+                                </li>
+                            <% end %>
+                            <% @counter = 0 %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid text-center" style="padding-bottom: 50px;">
+            <div clas="row text-center">
+                <div class="col text-center">
+                    <!--  -->
+                    <h1 style = "color: black;">All of Your Scores!</h1>
+                    <!--  -->
+                    <div class="text-center">
+                        <!--  -->
+                        <div class="container">
+                            <ul class="list-group center text-center ">
+                            <% @user_scores.reverse.each do |score| %>
+                                <li class="list-group-item">
+                                    <div class="container-fluid center-block">
+                                        <div class="leaderboard-place"> #<%= @counter = @counter + 1 %> </div>
+                                        <h1 class="alert alert-success" style="width: 300px; font-size: 16px;"> Test Score </h1>
+                                    </div>
+                                    <div class="container-fluid">
+                                        <div class="btn btn-info" style="width:150px;"> WPM: <%= score.wpm %> </div>
+                                        <div class="btn btn-info" style="width:150px;"> Accuracy: <%= score.accuracy %> </div>
+                                        <div class="btn btn-success" style="width:150px;"> Points: <%= score.points %> </div>
+                                    </div>
+                                </li>
+                            <% end %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% else %>
+        <div class="container-fluid text-center" style="padding-bottom: 50px;">
+            <div clas="row text-center">
+                <div class="col text-center">
+                    <!--  -->
+                    <h1 style = "color: black;">Doesn't look like you have any test results!</h1>
+                    <!--  -->
+                    <div class="text-center">
+                        <!--  -->
+                        <div class="container">
+                            <ul class="list-group center text-center ">
+                                <li class="list-group-item">
+                                    <div class="container-fluid">
+                                        <div class="center-block">
+                                            <h1 id="to-type" style="color: black;" class="unselectable"> Click 
+                                                 <a href="/test/index" class="btn btn-success" style="font-size: 26px;">Here</a>
+                                                 to take your first test!
+                                             </h1>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% end %>
+
+</body>
+
+</html>
