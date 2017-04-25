@@ -73,7 +73,7 @@
                                     </div>
 
                                     <div class="center-block" style="padding-bottom: 30px; padding-top: 30px;">
-                                        <input id="typing-area" class="test-input" placeholder="Click here to start!" type=text name="typed" size=45 autocomplete="off" onfocus="clearField(this); startTimer();" onblur="fillField(this);" onsubmit="stopIt();" onfocusout="stopIt();" style="border-radius: 5px; font-size: 22px;">
+                                        <input id="typing-area" class="test-input" placeholder="Click here to start!" type=text name="typed" size=45 autocomplete="off" onfocus="clearField(this); startTimer();" onblur="fillField(this);" onsubmit="stopIt();" onfocusout="stopIt();" onpaste="return false;" style="border-radius: 5px; font-size: 22px;">
                                     </div>
 
                                     <div class="center-block" style="padding-top: 30px; padding-bottom: 30px; display: none;">
@@ -444,6 +444,13 @@
                 var errors = 0;
 
                 var userSentence = document.getElementById("typing-area").value;
+
+                //Remove duplicate spaces from user input
+                while(userSentence.includes("  ")){
+                    userSentence = userSentence.replace("  ", " ");
+                    errors++;
+                }
+
                 var userArray = userSentence.split(" ");
                 var selectedArray = selectedSentence.split(" ");
 
