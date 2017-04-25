@@ -25514,3 +25514,7 @@ DEPRECATION WARNING: Using a dynamic :action segment in a route is deprecated an
             FROM sqlite_temp_master
             WHERE name='index_users_on_email' AND type='index'
 [0m
+DEPRECATION WARNING: Using a dynamic :controller segment in a route is deprecated and will be removed in Rails 5.2. (called from block in <top (required)> at /Users/rendenyoder/Desktop/TypingTyphoon/config/routes.rb:18)
+DEPRECATION WARNING: Using a dynamic :action segment in a route is deprecated and will be removed in Rails 5.2. (called from block in <top (required)> at /Users/rendenyoder/Desktop/TypingTyphoon/config/routes.rb:18)
+DEPRECATION WARNING: Using a dynamic :controller segment in a route is deprecated and will be removed in Rails 5.2. (called from block in <top (required)> at /Users/rendenyoder/Desktop/TypingTyphoon/config/routes.rb:18)
+DEPRECATION WARNING: Using a dynamic :action segment in a route is deprecated and will be removed in Rails 5.2. (called from block in <top (required)> at /Users/rendenyoder/Desktop/TypingTyphoon/config/routes.rb:18)
