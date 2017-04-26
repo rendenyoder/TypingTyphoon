@@ -463,16 +463,17 @@
                 }
                 console.log(errors);
 
+                dayTwo = new Date();
+                endType = dayTwo.getTime();
+                totalTime = ((endType - startType) / 1000);
+                spd = Math.round((word/totalTime) * 60);
+
                 if(errors < 10){
                     //Calculate the amount of words they typed per minute
-                    dayTwo = new Date();
-                    endType = dayTwo.getTime();
-                    totalTime = ((endType - startType) / 1000);
-                    spd = Math.round((word/totalTime) * 60);
                     var accr = (userSentence.length - errors) / userSentence.length;
                     accr = Math.round(accr * 100);
                     points = Math.round(spd * (accr/100));
-                    document.getElementById("typing-speed").innerHTML="\nYou typed at a speed of " + spd + " words per minute with " + accr + "% accuracy! You earned " + points + " points!";
+                    document.getElementById("typing-speed").innerHTML="You typed at a speed of " + spd + " words per minute with " + accr + "% accuracy! You earned " + points + " points!";
                     //Set variable for form submission
                     document.getElementById("userid").value = <%= current_user.id %>;
                     document.getElementById("wpm").value = spd;
@@ -480,7 +481,11 @@
                     document.getElementById("points").value = points;
                     document.getElementById("addScore").disabled = false;
                 } else {
-                    document.getElementById("typing-speed").innerHTML="Too many errors were made to get an accurate reading, try again!";
+                    if(userArray.length > (selectedArray.length/2)){
+                        document.getElementById("typing-speed").innerHTML="You typed at a speed of " + spd + " words per minute but to many errors were made to get an accurate reading!";
+                    } else {
+                        document.getElementById("typing-speed").innerHTML="Too many errors were made to get an accurate reading.";
+                    }
                     document.getElementById("addScore").disabled = true;
                 }
             }
